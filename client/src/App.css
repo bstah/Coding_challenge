@@ -27,6 +27,14 @@
 .App-link {
   color: #61dafb;
 }
+.toast{
+  margin: auto;
+  margin-bottom: 20px;
+}
+.form-item{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
 
 @keyframes App-logo-spin {
   from {

@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const axios_1 = __importDefault(require("axios"));
 const node_cache_1 = __importDefault(require("node-cache"));
 const body_parser_1 = __importDefault(require("body-parser"));
@@ -22,10 +23,24 @@ const port = process.env.PORT || 8080; // default port to listen
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.raw());
+app.use((0, cors_1.default)());
+const getCache = (req, res, next) => {
+    try {
+        const keys = cache.keys();
+        if (keys.length > 0) {
+            let data = Object.values(cache.mget(keys));
+            return res.status(200).json({ message: 'successfully got users', data: data });
+        }
+        return next();
+    }
+    catch (err) {
+        throw new Error(err);
+    }
+};
 app.get("/", (req, res) => {
     res.send("Hello world!");
 });
-app.get("/users", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get("/users", getCache, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let users = yield axios_1.default.get("https://reqres.in/api/users?page=2");
         let usersData = users.data.data;

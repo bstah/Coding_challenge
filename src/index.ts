@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors"
 import axios from "axios";
 import NodeCache from "node-cache";
 import bodyParser from "body-parser";
@@ -10,6 +11,7 @@ const port = process.env.PORT || 8080; // default port to listen
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
+app.use(cors())
 
 interface User {
     id: number;
@@ -19,11 +21,24 @@ interface User {
     avatar: string;
 }
 
+const getCache = (req: any, res: any, next: any) => {
+    try{
+        const keys = cache.keys();
+        if(keys.length > 0){
+            let data = Object.values(cache.mget(keys)) 
+            return res.status(200).json({message:'successfully got users',data: data});
+        }
+        return next();
+    } catch (err){
+        throw new Error(err);
+    }
+}
+
 app.get( "/", ( req, res ) => {
     res.send( "Hello world!" );
 } );
 
-app.get("/users", async (req, res) =>{
+app.get("/users",getCache, async (req, res) =>{
     try{
     let users = await axios.get("https://reqres.in/api/users?page=2");
     let usersData:Array<User> = users.data.data
