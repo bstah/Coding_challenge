@@ -12,6 +12,5 @@ npm run start
 
 For the frontend go to the client folder and run  (default port 3000)
 ```
-npm install
 npm start
 ```
